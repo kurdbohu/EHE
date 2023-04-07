@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" type="text/css" href="stiluslap.css">
+  <script type="text/javascript" src="js/kepek_betoltese.js"></script>
+  <script type="text/javascript" src="js/betutipus_valtasa.js"></script>
+  <script type="text/javascript" src="js/adatbazis.js"></script>
+  <script type="text/javascript" src="js/db_heber_massalhangzok.js"></script>
+  <script type="text/javascript" src="js/db_heber_dages.js"></script>
+  <script type="text/javascript" src="js/db_heber_maganhangzok.js"></script>
+  <script type="text/javascript" src="js/db_heber_felhangzok.js"></script>
+  <script type="text/javascript" src="js/db_heber_szavak.js"></script>
+  <script type="text/javascript" src="js/db_gorog_leckek_szavai.js"></script>
+  <script type="text/javascript" src="js/db_gorog_1_dolgozat_1.js"></script>
+  <script type="text/javascript" src="js/db_gorog_szavak_1.js"></script>
+  <script type="text/javascript" src="js/db_gorog_szavak_1_szemelyek.js"></script>
+  <script type="text/javascript" src="js/db_gorog_szavak_2.js"></script>
+  <script type="text/javascript" src="js/db_gorog_13_lecke_eros_igek.js"></script>
+  <script type="text/javascript" src="js/vezerles.js"></script>
+ </head>
+ <body>
+ 
+<div id="keret">
+ <table id="cimsor" width="100%">
+  <tr>
+   <td width="30"></td>
+   <td width="*"><h1 id="cim">Kikérdező</h1></td>
+   <td width="30" align="right">
+    <!-- <button id="betutipus_valtasa" onclick="betutipus_valtasa();">B</button> -->
+    <button id="menuvalaszto" onclick="kategoriak_kivalasztasa();">...</button></td>
+  </tr>
+ </table>
+ 
+ <div id="kategoriak_kivalasztasa"></div>
+ 
+ <div id="kikerdezo">
+  <table id="navigalo_gombok">
+   <tr>
+    <td align="left">
+     <button id="navigalo_gomb_random" onclick="random_betu();">Random</button>
+    </td>
+    <td align="right">
+     <button id="navigalo_gomb_kovetkezo" onclick="kovetkezo_betu();">Kövi</button>
+    </td>
+   </tr>
+  </table>
+  
+  <table id="nev_felfedese_gomb"><tr><th>
+   <button id="navigalo_gomb_megfejtes" onclick="nev_felfedese();">Mit jelent?</button>
+  </th></tr></table>
+  
+  <div id="feladvany"></div>
+  <div id="megfejtes"></div>
+  
+ </div>
+ 
+ <div id="cache"></div>
+</div>
+
+<script type="text/javascript"> // https://kurdi.eu/bogdan/heber/
+// gombok
+const cim_obj = document.getElementById("cim");
+const kep_obj = document.getElementById("kep");
+const info_obj = document.getElementById("info");
+const karakter_obj = document.getElementById("karakter");
+const nev_felfedese_gomb_obj = document.getElementById("nev_felfedese_gomb");
+const navigalo_gomb_megfejtes_obj = document.getElementById("navigalo_gomb_megfejtes");
+const navigalo_gomb_random_obj = document.getElementById("navigalo_gomb_random");
+const navigalo_gomb_kovetkezo_obj = document.getElementById("navigalo_gomb_kovetkezo");
+const kikerdezo_obj = document.getElementById("kikerdezo");
+const kategoriak_kivalasztasa_obj = document.getElementById("kategoriak_kivalasztasa");
+const feladvany_obj = document.getElementById("feladvany");
+const megfejtes_obj = document.getElementById("megfejtes");
+const betutipus_valtasa_obj = document.getElementById("betutipus_valtasa");
+const menuvalaszto_obj = document.getElementById("menuvalaszto");
+const kategoriak =
+[
+    db_heber_massalhangzok,
+    db_heber_dages,
+    db_heber_maganhangzok,
+    db_heber_felhangzok,
+    // db_gorog_szavak_1,
+    // gorog_szavak_1_szemelyek,
+    // gorog_1_dolgozat_1,
+    // gorog_szavak_2,
+]
+.concat(db_heber_szavak)
+.concat(db_gorog_leckek_szavai)
+.concat(db_gorog_13_lecke_eros_igek);
+
+var betoltott_elemek = [];
+var kivalasztott_kep_index = -1;
+kategoriak_megjelenitese();
+betumeret_frissitese();
+kepek_betoltese();
+// "" --> "τὸ εὐᾶγέλιον, -ου" lesz a "τὸ εὐαγγέλιον, -ου" helyett !!
+</script>
+
+ </body>
+</html>

@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta charset="utf-8">
+  <title>Héber szavak konvertálása könyvből Unicode karakterré</title>
+  <style type="text/css">
+  @font-face
+  {
+      font-family: "Héber";
+      src: url("SBL_Hbrw.ttf");
+  }
+  textarea{width: 100%; height:100px;}
+  #kimenet
+  {
+      font-family: "Héber";   
+      unicode-bidi: bidi-override;
+      direction:rtl;
+      font-size: 32pt;
+  }
+  </style>
+ </head>
+ <body>
+
+<textarea id="bevitel" onkeyup="dekodolas()"></textarea>
+<br>
+<textarea id="kimenet"></textarea>
+
+<script>
+const bevitel_obj = document.getElementById("bevitel");
+const kimenet_obj = document.getElementById("kimenet");
+const heber_tabla =
+{
+    // Egyszerű     // Dágessel, mappíqkal:
+    "a": "א",
+    "b": "ב",       "B": "בּ",
+    "g": "ג",       "G": "גּ",
+    "d": "ד",       "D": "דּ",
+    "h": "ה",       "H": "הּ",
+    "w": "ו",       "W": "וּ",
+    "z": "ז",       "Z": "זּ",
+    "j": "ח",       "J": "חּ",
+    "f": "ט",       "F": "טּ",
+    "y": "י",       "Y": "יּ",
+    "k": "כ",       "K": "כּ",
+    "l": "ל",       "L": "לּ",
+    "m": "מ",       "M": "מּ",
+    "n": "נ",       "N": "נּ",
+    "s": "ס",       "S": "סּ",
+    "[": "ע",       // "[": "עּ",
+    "p": "פ",       "P": "פּ",
+    "x": "צ",       "X": "צּ",
+    "q": "ק",       "Q": "קּ",
+    "r": "ר",       "R": "רּ",
+    "c": "שׂ",       "C": "שּׂ",
+    "v": "שׁ",       "V": "שּׁ",
+    "t": "ת",       "T": "תּ",
+    
+    // Speciális karakterek:
+    " ": " ",       // szóköz
+    "\n": "\n",     // sortörés 
+    "\r": "\n",     // sortörés
+    "A": "-",       // maqqéf vonal
+    "/": "וֹ",       // szegól gádól
+    ".": "׃",       // szóf pászúq
+    "é": ",",       // vessző
+    "þ": "×",
+};
+
+const vegbetuk =
+{
+    // Egyszerű:    // Dágessel, mappíqkal:
+ // "j": "ך",       "J": "ךְ",   // kaf finalis
+    "ò": "ךָ",                   // kaf finalis qámeccel
+    "m": "ם",       "M": "םּ",   // mém finalis
+    "µ": "ם",                   // mém finalis
+    "n": "ן",       "N": "ןּ",   // nún finalis
+    "÷": "ן",                   // nún finalis
+    "p": "ף",       "P": "ףּ",   // pe finalis
+    "¹": "ף",                   // pe finalis
+    "f": "ץ",       "F": "ץּ",   // cáde finalis
+    "Å": "ץ",                   // cáde finalis
+    "ó": "׀",                   // passzeq
+    "|": "״",                   // gershajim
+};
+
+function betu_atalakitasa(karakter, vegbetu)
+{
+    var kimenet = "";
+    if (vegbetu && vegbetuk[karakter])
+    {
+        kimenet = vegbetuk[karakter];
+    }
+    else if (heber_tabla[karakter])
+    {
+        kimenet = heber_tabla[karakter];
+    }
+    else if ("0123456789".indexOf(karakter) != -1)
+    {
+        kimenet = karakter;
+    }
+    else
+    {
+        kimenet = "?";
+        console.log("Ismeretlen betű: " + karakter);
+    }
+    return(kimenet);
+}
+
+function ket_betu_atalakitasa(karakter1, karakter2, vegbetu)
+{
+    var kimenet = null;
+    
+    switch(karakter1)
+    {
+        case "'":   // Patah
+        case "\"":
+        case "¾":
+            kimenet = betu_atalakitasa(karakter2, vegbetu) + "ַ";
+            // console.log(karakter1 + " + " + karakter2 + " = " + betu_atalakitasa(karakter2, i == 0) + "ַ (Patah)");
+            break;
+        case "}":   // Hatéf Patah
+            kimenet = betu_atalakitasa(karakter2, vegbetu) + "ֲ";
+            // console.log(karakter1 + " + " + karakter2 + " = " + betu_atalakitasa(karakter2, i == 0) + "ֲ (Hatéf Patah)");
+            break;
+        case "]":   // Söwá
+        case "Ò":
+            kimenet = betu_atalakitasa(karakter2, vegbetu) + "ְ";
+            // console.log(karakter1 + " + " + karakter2 + " = " + betu_atalakitasa(karakter2, i == 0) + "ְ (Söwá)");
+            break;
+        case ";":   // Qámec
+        case ":":
+        case "É":
+            kimenet = betu_atalakitasa(karakter2, vegbetu) + "ׇ";
+            // console.log(karakter1 + " + " + karakter2 + " = " + betu_atalakitasa(karakter2, i == 0) + "ׇ (Qámec)");
+            break;
+        case "Õ":   // Hatéf Qámec
+        case "†":
+            kimenet = betu_atalakitasa(karakter2, vegbetu) + "ֳ";
+            // console.log(karakter1 + " + " + karakter2 + " = " + betu_atalakitasa(karakter2, i == 0) + "ֳ (Hatéf Qámec)");
+            break;
+        case ",":   // Szegól
+        case "²":
+        case "<":
+            kimenet = betu_atalakitasa(karakter2, vegbetu) + "ֶ";
+            // console.log(karakter1 + " + " + karakter2 + " = " + betu_atalakitasa(karakter2, i == 0) + "ֶ (Szegól)");
+            break;
+        case "…":   // Hatéf Szegól
+            kimenet = betu_atalakitasa(karakter2, vegbetu) + "ֱ";
+            // console.log(karakter1 + " + " + karakter2 + " = " + betu_atalakitasa(karakter2, i == 0) + "ֱ (Hatéf Szegól)");
+            break;
+        case "Ô":
+            kimenet = betu_atalakitasa(karakter2, vegbetu) + "ֱ";
+            // console.log(karakter1 + " + " + karakter2 + " = " + betu_atalakitasa(karakter2, i == 0) + "ֱ (Hatéf Szegól)");
+            break;
+        case "o":   // Hólem
+        case "O":
+        case "¿":
+     // case "œ":
+            kimenet = betu_atalakitasa(karakter2, vegbetu) + "ֹֹ";
+            // console.log(karakter1 + " + " + karakter2 + " = " + betu_atalakitasa(karakter2, i == 0) + "ֹֹ (Hólem)");
+            break;
+        case "i":   // Híreq
+        case "I":
+            kimenet = betu_atalakitasa(karakter2, vegbetu) + "ִ";
+            // console.log(karakter1 + " + " + karakter2 + " = " + betu_atalakitasa(karakter2, i == 0) + "ִ (Híreq)");
+            break;
+        case "e":   // Céré
+        case "E":
+            kimenet = betu_atalakitasa(karakter2, vegbetu) + "ֵ";
+            // console.log(karakter1 + " + " + karakter2 + " = " + betu_atalakitasa(karakter2, i == 0) + "ֵ (Céré)");
+            break;
+        case "u":   // Qibbúc
+        case "¬":
+            kimenet = betu_atalakitasa(karakter2, vegbetu) + "ֻ";
+            // console.log(karakter1 + " + " + karakter2 + " = " + betu_atalakitasa(karakter2, i == 0) + "ֻ (Qibbúc)");
+            break;
+        default:
+            break;
+    }
+    
+    return(kimenet);
+}
+
+function harom_betu_atalakitasa(karakter1, karakter2, karakter3)
+{
+    var kimenet = null;
+    if (karakter1 + karakter2 + karakter3 == " ” ")
+    {
+        kimenet = "״";  // gershajim
+    }
+    else if (heber_tabla[karakter3] && (karakter2 + karakter1 == "Õ”"))
+    {
+        kimenet = heber_tabla[karakter3] + "ֳֽ"; // hatéf qámec meteg
+    }
+    else if (heber_tabla[karakter3] && (karakter2 + karakter1 == "iO"))
+    {
+        kimenet = heber_tabla[karakter3] + "ִֹ";    // híreq + hólem
+    }
+    return(kimenet);
+}
+
+function dekodolas()
+{
+    var kimenet = "";
+    var bemenet = bevitel
+                    .value
+                    .replaceAll("&", "")   // & -> ^ hangsúlyjelet nem lehet átalakítani (lehetne ez: "ٛ ")
+                    .replaceAll("%", "")   // atnach? % -> rombusz hangsúlyjelet nem lehet átalakítani (lehetne ez: "וׄ")
+                    .replaceAll("Ù", "")
+                    .replaceAll("Ú", "")
+                    .replaceAll("Ð", "")
+                    .replaceAll("à", "")    // hangsúlyjel (<)
+                    .replaceAll("‰", "");   // szillúq
+    
+    for(var i = bemenet.length - 1; i >= 0;)
+    {
+        var karakter1 = bemenet[i];
+        var karakter2 = bemenet[i-1];
+        var karakter3 = bemenet[i-2];
+        var vegbetu = (i == 0 ||
+                       karakter2 == " " ||
+                       karakter2 == "." ||
+                       karakter2 == "A" ||
+                       karakter2 == "é" ||
+                       karakter2 == "\n" ||
+                       karakter2 == "\r");
+        var duplabetu = ket_betu_atalakitasa(karakter1, karakter2, vegbetu);
+        var triplabetu = harom_betu_atalakitasa(karakter1, karakter2, karakter3);
+        
+        if (triplabetu)
+        {
+            kimenet += triplabetu;
+            i-=3;
+        }
+        else if (duplabetu)
+        {
+            kimenet += duplabetu;
+            i-=2;
+        }
+        else
+        {
+            kimenet += betu_atalakitasa(karakter1, vegbetu);
+            i--;
+        }
+    }
+    
+    kimenet_obj.value = kimenet;    
+}
+</script>
+
+ </body>
+</html>

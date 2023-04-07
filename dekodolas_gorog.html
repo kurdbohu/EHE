@@ -1,0 +1,225 @@
+<style>textarea{font-size: 32px; width:500px; height:2em; padding:20px; margin:20px; display:block;}</style>
+<center>
+<textarea id="bevitel" type="text" onkeyup="szoveg_dekodolasa();"></textarea>
+<textarea id="kimenet" type="text"></textarea>
+</center>
+<script>
+var kodtabla =
+[
+    // nagybetűk
+    {"bajt": [129, 129], "betu": "Α"},
+    {"bajt": [129, 130], "betu": "Β"},
+    {"bajt": [129, 135], "betu": "Γ"},
+    {"bajt": [129, 132], "betu": "Δ"},
+    {"bajt": [129, 133], "betu": "Ε"},
+    {"bajt": [129, 154], "betu": "Ζ"},
+    {"bajt": [129, 136], "betu": "Η"},
+    {"bajt": [129, 145], "betu": "Θ"},
+    {"bajt": [129, 137], "betu": "Ι"},
+    {"bajt": [129, 139], "betu": "Κ"},
+    {"bajt": [129, 140], "betu": "Λ"},
+    {"bajt": [129, 141], "betu": "Μ"},
+    {"bajt": [129, 142], "betu": "Ν"},
+    {"bajt": [129, 152], "betu": "Ξ"},
+    {"bajt": [129, 143], "betu": "Ο"},
+    {"bajt": [129, 144], "betu": "Π"},
+    {"bajt": [129, 146], "betu": "Ρ"},
+    {"bajt": [129, 147], "betu": "Σ"},
+    {"bajt": [129, 147], "betu": "Σ"},
+    {"bajt": [129, 148], "betu": "Τ"},
+    {"bajt": [129, 149], "betu": "Υ"},
+    {"bajt": [129, 134], "betu": "Φ"},
+    {"bajt": [129, 131], "betu": "Χ"},
+    {"bajt": [129, 153], "betu": "Ψ"},
+    {"bajt": [129, 151], "betu": "Ω"},
+    
+    // kisbetűk
+    {"bajt": [129, 161], "betu": "α"},
+    {"bajt": [129, 162], "betu": "β"},
+    {"bajt": [129, 167], "betu": "γ"},
+    {"bajt": [129, 164], "betu": "δ"},
+    {"bajt": [129, 165], "betu": "ε"},
+    {"bajt": [129, 186], "betu": "ζ"},
+    {"bajt": [129, 168], "betu": "η"},
+    {"bajt": [129, 177], "betu": "θ"},
+    {"bajt": [129, 169], "betu": "ι"},
+    {"bajt": [129, 171], "betu": "κ"},
+    {"bajt": [129, 172], "betu": "λ"},
+    {"bajt": [129, 173], "betu": "μ"},
+    {"bajt": [129, 174], "betu": "ν"},
+    {"bajt": [129, 184], "betu": "ξ"},
+    {"bajt": [129, 175], "betu": "ο"},
+    {"bajt": [129, 176], "betu": "π"},
+    {"bajt": [129, 178], "betu": "ρ"},
+    {"bajt": [129, 179], "betu": "σ"},
+    {"bajt": [128, 162], "betu": "ς"},
+    {"bajt": [129, 180], "betu": "τ"},
+    {"bajt": [129, 181], "betu": "υ"},
+    {"bajt": [129, 166], "betu": "φ"},
+    {"bajt": [129, 163], "betu": "χ"},
+    {"bajt": [129, 185], "betu": "ψ"},
+    {"bajt": [129, 183], "betu": "ω"},
+    
+    // speciálisak
+    {"bajt": [128, 160], "betu": " "},
+    {"bajt": [128, 163], "betu": "’′"},    // gyenge hehezet, éles hangsúly
+    //{"bajt": [129, 138], "betu": "‛"},     // erős hehezet
+    {"bajt": [128, 167], "betu": ""},      // ez valószínűleg rossz
+    {"bajt": [128, 172], "betu": ","},
+    {"bajt": [128, 173], "betu": "-"},
+];
+
+var ketbajtos_kodtabla = // egy-egy karakternek csak a harmadik bájtját vizsgálja
+[
+    {"bajtok": [161, 138], "betu": "ἁ"},    // erős hehezet (?)
+    {"bajtok": [161, 155], "betu": "ἄ"},    // gyenge hehehet, éles hangsúly
+    {"bajtok": [161, 156], "betu": "ἆ"},    // gyenge hehezet, hajtott (?)
+    {"bajtok": [161, 167], "betu": "ᾶ"},    // hajtott hangsúly (?)
+    {"bajtok": [161, 170], "betu": "ἀ"},    // gyenge hehehet
+    {"bajtok": [161, 182], "betu": "ά"},    // éles hangsúly
+    {"bajtok": [161, 187], "betu": "ὰ"},    // tompa hangsúly
+    {"bajtok": [161, 188], "betu": "ἇ"},    // erős hehezet, hajtott (?)
+    
+    {"bajtok": [165, 138], "betu": "ἑ"},    // erős hehezet (?)
+    {"bajtok": [165, 155], "betu": "ἔ"},    // gyenge hehezet, éles hangsúly
+ // {"bajtok": [165, 156], "betu": "?"},    // gyenge hehezet, hajtott (?)
+ // {"bajtok": [165, 167], "betu": "?"},    // hajtott hangsúly (?)
+    {"bajtok": [165, 170], "betu": "ἐ"},    // gyenge hehezet
+    {"bajtok": [165, 182], "betu": "έ"},    // éles hangsúly
+    {"bajtok": [165, 187], "betu": "ὲ"},    // tompa hangsúly (?)
+ // {"bajtok": [165, 188], "betu": "?"},    // erős hehezet, hajtott (?)
+    
+    {"bajtok": [168, 138], "betu": "ἡ"},    // erős hehezet
+    {"bajtok": [168, 155], "betu": "ἤ"},    // gyenge hehehet, éles hangsúly (?)
+    {"bajtok": [168, 156], "betu": "ἦ"},    // gyenge hehezet, hajtott (?)
+    {"bajtok": [168, 167], "betu": "ῆ"},    // hajtott hangsúly (?)
+    {"bajtok": [168, 170], "betu": "ἠ"},    // gyenge hehehet (?)
+    {"bajtok": [168, 182], "betu": "ή"},    // éles hangsúly
+    {"bajtok": [168, 187], "betu": "ὴ"},    // tompa hangsúly (?)
+    {"bajtok": [168, 188], "betu": "ἧ"},    // erős hehezet, hajtott (?)
+    
+    {"bajtok": [169, 138], "betu": "ἱ"},    // erős hehezet
+    {"bajtok": [169, 155], "betu": "ἴ"},    // gyenge hehehet, éles hangsúly (?)
+    {"bajtok": [169, 156], "betu": "ἶ"},    // gyenge hehezet, hajtott
+    {"bajtok": [169, 167], "betu": "ῖ"},    // hajtott hangsúly (?)
+    {"bajtok": [169, 170], "betu": "ἰ"},    // gyenge hehezet
+    {"bajtok": [169, 182], "betu": "ί"},    // éles hangsúly
+    {"bajtok": [169, 187], "betu": "ὶ"},    // tompa hangsúly
+    {"bajtok": [169, 188], "betu": "ἷ"},    // erős hehezet, hajtott
+    
+    {"bajtok": [175, 138], "betu": "ὁ"},    // erős hehezet
+    {"bajtok": [175, 155], "betu": "ὄ"},    // gyenge hehehet, éles hangsúly (?)
+ // {"bajtok": [175, 156], "betu": "?"},    // gyenge hehezet, hajtott (?)
+ // {"bajtok": [175, 167], "betu": "?"},    // hajtott hangsúly (?)
+    {"bajtok": [175, 170], "betu": "ὀ"},    // gyenge hehezet (?)
+    {"bajtok": [175, 182], "betu": "ό"},    // éles hangsúly
+    {"bajtok": [175, 187], "betu": "ὸ"},    // tompa hangsúly
+ // {"bajtok": [175, 188], "betu": "?"},    // erős hehezet, hajtott (?)
+    
+    {"bajtok": [181, 138], "betu": "ὑ"},    // erős hehezet (?)
+    {"bajtok": [181, 155], "betu": "ὔ"},    // gyenge hehehet, éles hangsúly (?)
+    {"bajtok": [181, 156], "betu": "ὖ"},    // gyenge hehezet, hajtott (?)
+    {"bajtok": [181, 167], "betu": "ῦ"},    // hajtott hangsúly
+    {"bajtok": [181, 170], "betu": "ὐ"},    // gyenge hehezet
+    {"bajtok": [181, 182], "betu": "ύ"},    // éles hangsúly
+    {"bajtok": [181, 187], "betu": "ὺ"},    // tompa hangsúly (?)
+    {"bajtok": [181, 188], "betu": "ὗ"},    // erős hehezet, hajtott (?)
+    
+    {"bajtok": [183, 138], "betu": "ὡ"},    // erős hehezet (?)
+    {"bajtok": [183, 155], "betu": "ὤ"},    // gyenge hehehet, éles hangsúly (?)
+    {"bajtok": [183, 156], "betu": "ὦ"},    // gyenge hehezet, hajtott (?)
+    {"bajtok": [183, 167], "betu": "ῶ"},    // hajtott hangsúly (?)
+    {"bajtok": [183, 170], "betu": "ὠ"},    // gyenge hehezet (?)
+    {"bajtok": [183, 175], "betu": "ῷ"},    // hajtott, ióta szubszkriptummal
+    {"bajtok": [183, 182], "betu": "ώ"},    // éles hangsúly (?)
+    {"bajtok": [183, 187], "betu": "ὼ"},    // tompa hangsúly (?)
+    {"bajtok": [183, 188], "betu": "ὧ"},    // erős hehezet, hajtott
+    
+    {"bajtok": [178, 138], "betu": "ῥ"},    // erős hehezet
+ // {"bajtok": [178, 155], "betu": "?"},    // gyenge hehehet, éles hangsúly (?)
+ // {"bajtok": [178, 156], "betu": "?"},    // gyenge hehezet, hajtott (?)
+ // {"bajtok": [178, 167], "betu": "?"},    // hajtott hangsúly (?)
+    {"bajtok": [178, 170], "betu": "ῤ"},    // gyenge hehezet (?)
+ // {"bajtok": [178, 182], "betu": "?"},    // éles hangsúly (?)
+ // {"bajtok": [178, 187], "betu": "?"},    // tompa hangsúly (?)
+ // {"bajtok": [178, 188], "betu": "?"},    // erős hehezet, hajtott (?)
+    
+    // speciálisak
+    {"bajtok": [166, 136], "betu": "Ἦ"},    // gyenge hehezet, hajtott, nagybetű
+    {"bajtok": [160, 170], "betu": "’"},    // gyenge hehezet
+];
+
+function bajtok_megfejtese(s)
+{
+    var utf8Encode = new TextEncoder();
+    var bajtok = utf8Encode.encode(s);
+    console.log(bajtok);
+    var ertelmes_bajtok = [bajtok[1], bajtok[2]];
+    return(ertelmes_bajtok);
+}
+
+function ketbajtos_dekodolas(c1, c2)
+{
+    var bajt1 = bajtok_megfejtese(c1);
+    var bajt2 = bajtok_megfejtese(c2);
+    for(var kod of ketbajtos_kodtabla)
+        if (kod.bajtok[0] == bajt1[1] &&
+            kod.bajtok[1] == bajt2[1])
+                return(kod.betu);
+}
+
+function betu_dekodolasa(c)
+{
+    var bajt = bajtok_megfejtese(c);
+    for(var kod of kodtabla)
+    {
+        if (kod.bajt[0] == bajt[0] &&
+            kod.bajt[1] == bajt[1])
+        {
+            return(kod.betu);
+        }
+    }
+    return(" (" + bajt + ") ");
+}
+
+function szoveg_dekodolasa()
+{
+    var s = document.getElementById("bevitel").value;
+    
+    
+    var bajtok = [];
+    for(var c of s)
+    {
+        bajtok.push(bajtok_megfejtese(c));
+    }
+    console.log("----------- " + bajtok.join(", ") + " ------------ ");
+    
+    var dekodolt_szoveg = "";
+    for(var i=0; i<s.length -1;)
+    {
+        var c1 = s[i];
+        var c2 = s[i+1];
+        var betu = ketbajtos_dekodolas(c1, c2); // || (betu_dekodolasa(c1) + betu_dekodolasa(c2));
+        var betu1 = betu_dekodolasa(c1);
+        var betu2 = betu_dekodolasa(c2);
+        
+        if (betu)
+        {
+            dekodolt_szoveg += betu;
+            i += 2;
+        }
+        else
+        {
+            dekodolt_szoveg += betu1;
+            i++;
+        }        
+    }
+    if (i < s.length)
+    {
+        dekodolt_szoveg += betu_dekodolasa(s[i]);
+    }
+    
+    document.getElementById("kimenet").value = dekodolt_szoveg;
+}
+
+</script>
